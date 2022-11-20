@@ -8,17 +8,24 @@ let poseNet;
 let currPose;
 let noseX = 0;
 let noseY = 0;
-let disegno;
+
+let font1;
+let font2;
 
 let button;
 let button2;
 let start = false;
 
+function preload() {
+  font1 = loadFont("assets/Minecraft.ttf");
+  font2 = loadFont("assets/04B_30__.TTF");
+}
+
 function setup() { 
   createCanvas(windowWidth, windowHeight);
-  disegno = createGraphics(windowWidth + 100, windowHeight);
-  disegno.clear();
-
+  setShakeThreshold(100);
+  rectMode(CENTER);
+  textAlign(CENTER);
   video = createCapture(VIDEO);
   video.hide();
 
@@ -26,27 +33,28 @@ function setup() {
   poseNet.flipHorizontal = 1;
   poseNet.on('pose', gotPoses);
   //sharpen edges
-  pixelDensity(1);
+  //pixelDensity(1);
   //reduce lag on grid square color changes
-  //frameRate(120);
+  frameRate(120);
   
   globalColor = color(216, 97, 91);
-  background(250);
+  background("#44CFCB");
   stroke(240);
-  strokeWeight(1);
-  //create grid tiles and push into grid tile array
-  //.. conditional value is set to fill current screen size
-  //background("red");
+  strokeWeight(2);
+  textFont(font2, 70);
+  text("NOSE PIXEL", width/2 + 10, height/4, 300, 200);
+  textFont(font1, 30);
+  text("Disegna tutto quello che vuoi solo muovendo la testa!", width/2 + 10, height/4*2, 300, 200);
   button = createButton("Clicca per disegnare");
-	button.style('font-size', '20px');
+	button.style('font-size', '30px');
 	button.style('font-weight', 'bold');
-	button.style('font-family', 'Pacifico');
+	button.style('font-family', 'Minecraft');
   button.style('background-color', '#e84855');
   button.style('color', '#fafbfc');
   button.style('border-radius', '300px');
-  button.style('border', 'none');
-	button.size(200, 100);
-  button.position(width/2 - 100, height/2 - 70);
+  button.style('border', '2px solid white');
+	button.size(250, 150);
+  button.position(width/2 - 125, height/5*3);
   button.mousePressed(change);
 
 }
@@ -63,6 +71,9 @@ function gotPoses(poses) {
 
 function draw() { 
   if (start == true) {
+    background(250);
+    stroke(240);
+    
     for(var i = 0; i < 100; i++) {
       for(var j = 0; j < 100; j++){
         var x = i*12;
@@ -78,7 +89,8 @@ function draw() {
     
     for(var k = 0; k < 8; k++){
       paintGlobs.push(new PaintGlob(30+(45 * k), height - 70, 40, paintFill[k], k));
-    }  
+    } 
+    
     start =false;
    } 
   
@@ -90,13 +102,25 @@ function draw() {
   for(let j=0; j < paintGlobs.length; j++){
    	paintGlobs[j].display();
     paintGlobs[j].changeColor();
+    
   } 
+
+  if (touches.length > 1) {
+    //start = true;
+      save('drawing.png');
+  }
+  
 }
 
   function change() {
     start = true;
     button.remove();
   }
+
+  function deviceShaken() {
+		//save('draw.png');
+    start = true;
+	  }
 
 
   class PaintGlob {
@@ -107,13 +131,26 @@ function draw() {
      this.fill = myFill;
      this.k = k;
      //change global fill color when clicked which affects other mouse press function
-     
    }
-
    display() {
-    fill(this.fill);
-    noStroke();
-    ellipse(this.x,this.y,this.diam,this.diam);
+      fill(this.fill);
+      noStroke();
+      push();
+      if (dist(mouseX, mouseY, this.x, this.y) < this.diam /2) {
+        strokeWeight(3);
+        stroke("white");
+      } else {
+        stroke(this.fill);
+      }
+      ellipse(this.x,this.y,this.diam,this.diam);
+      pop();
+      push();
+      fill("black");
+      textStyle(BOLD);
+      textFont(font1, 17);
+      text("Salva il disegno premendo con 2 dita!", width/2, height-20, 312, 25);
+      text("Shakera per cancellare!", width/2, 20, 300, 25);
+      pop();
   }
    changeColor() {
      if (dist(mouseX, mouseY, this.x, this.y) < this.diam /2) {
@@ -146,6 +183,9 @@ function draw() {
         
       } else {
         noFill(); 
+      }
+      if (noseY > height- 100) {
+        noFill();
       }
     rect(this.xPos, this.yPos, this.diam);
     }
