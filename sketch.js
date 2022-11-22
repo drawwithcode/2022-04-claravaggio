@@ -109,7 +109,6 @@ function draw() {
     //start = true;
       save('drawing.png');
   }
-  
 }
 
   function change() {
@@ -122,6 +121,11 @@ function draw() {
     start = true;
 	  }
 
+    function touchEnded(event) {
+      if(DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) {
+        DeviceOrientationEvent.requestPermission()
+      }
+    }
 
   class PaintGlob {
     constructor(xPos, yPos, diam, myFill, k) {
@@ -130,8 +134,8 @@ function draw() {
      this.diam = diam;
      this.fill = myFill;
      this.k = k;
-     //change global fill color when clicked which affects other mouse press function
    }
+
    display() {
       fill(this.fill);
       noStroke();
@@ -166,9 +170,9 @@ function draw() {
     constructor(xPos, yPos, diam) {
       this.xPos = xPos;
       this.yPos = yPos;
-      this.diam = diam;
-      
+      this.diam = diam;  
     }
+    
     display() {   
       //change color of grid square to current global fill when clicked	
       if (currPose) {
